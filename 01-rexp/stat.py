@@ -37,7 +37,7 @@ def get_composition_century(block):
                             year = int(match[len(match)-1])
                             for i in range(10, 21):
                                 if i * 100 < year <= (i + 1) * 100:
-                                    return '%sth century' % (i + 1)
+                                    return ('%sth century' % (i + 1)) if (i !=  20) else ('%sst century' % (i + 1))
     return None
 
 
