@@ -33,7 +33,8 @@ def get_composition_century(block):
                     else:
                         match = regex_year.findall(date)
                         if len(match) > 0:
-                            year = int(match[0])
+                            # If year range, take the last year for composition century.
+                            year = int(match[len(match)-1])
                             for i in range(10, 21):
                                 if i * 100 < year <= (i + 1) * 100:
                                     return '%sth century' % (i + 1)
