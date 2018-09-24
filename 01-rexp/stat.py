@@ -5,7 +5,7 @@ import re
 def get_composers(block):
     out = []
     name_regex = re.compile(r'([^;]*)')
-    years_regex = re.compile(r'\([\d\-/]+\)')
+    years_regex = re.compile(r'\([\d\-/+]+\)')
     for line in block:
         if line.startswith('Composer:'):
             splitted = line.split(":")
