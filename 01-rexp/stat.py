@@ -15,7 +15,7 @@ def get_composers(block):
                     for name in name_regex.findall(names):
                         if name:
                             name = name.strip()
-                            out.append(years_regex.sub('', name))
+                            out.append(years_regex.sub('', name).strip())
     return out
 
 
