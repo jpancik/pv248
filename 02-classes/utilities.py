@@ -11,12 +11,14 @@ def load(filename):
             current_block = []
         else:
             current_block.append(line)
+    if current_block:
+        blocks.append(current_block)
 
     prints = []
     for block in blocks:
-        print = parse_block(block)
-        if print:
-            prints.append(print)
+        item = parse_block(block)
+        if item:
+            prints.append(item)
 
     return prints
 
@@ -66,7 +68,7 @@ def parse_block(block):
             range = None
             name = content
 
-            match = re.match(r'^([^-]+--[^,\n]+)(?:(?:, )(.*))?', content)
+            match = re.match(r'^([^-]+--[^,\n]+)(?:(?:(,|;) )(.*))?', content)
             if match:
                 range = match.group(1)
                 name = match.group(2)
@@ -99,7 +101,7 @@ def get_composers(content):
         return []
 
     out = []
-    name_regex = re.compile(r'^([^(]+)(?:\((\d*)--(\d*)\))?$')
+    name_regex = re.compile(r'^([^(]+)(?:\((\d*)(/\d)?--?(\d*)(/\d)?\))?$')
     splitted = content.split(";")
     for name in splitted:
         stripped = name.strip()
@@ -109,7 +111,11 @@ def get_composers(content):
                 name = match.group(1)
                 if name:
                     name = name.strip()
-                born = match.group(2)
-                died = match.group(3)
+                born = None
+                died = None
+                if not match.group(3):
+                    born = match.group(2)
+                if not match.group(5):
+                    died = match.group(4)
                 out.append(Person(name, born, died))
     return out
