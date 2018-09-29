@@ -10,7 +10,7 @@ class Print:
 
         if not self.partiture:
             self.partiture = False
-        print('Partiture: %s' % self.partiture)
+        print('Partiture: %s' % ('yes' if self.partiture else 'no'))
 
         if self.composition().incipit:
             print('Incipit: %s' % self.composition().incipit)
