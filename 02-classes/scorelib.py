@@ -7,8 +7,10 @@ class Print:
     def format(self):
         print('Print number: %s' % self.print_id)
         self.edition.format()
-        if self.partiture:
-            print('Partiture: %s' % self.partiture)
+
+        if not self.partiture:
+            self.partiture = False
+        print('Partiture: %s' % self.partiture)
 
         if self.composition().incipit:
             print('Incipit: %s' % self.composition().incipit)
