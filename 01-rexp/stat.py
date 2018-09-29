@@ -5,7 +5,7 @@ import re
 def get_composers(block):
     out = []
     name_regex = re.compile(r'([^;]*)')
-    years_regex = re.compile(r'\([\d\-/]+\)')
+    years_regex = re.compile(r'\([\d\-/+]+\)')
     for line in block:
         if line.startswith('Composer:'):
             splitted = line.split(":")
@@ -15,7 +15,7 @@ def get_composers(block):
                     for name in name_regex.findall(names):
                         if name:
                             name = name.strip()
-                            out.append(years_regex.sub('', name))
+                            out.append(years_regex.sub('', name).strip())
     return out
 
 
@@ -33,10 +33,11 @@ def get_composition_century(block):
                     else:
                         match = regex_year.findall(date)
                         if len(match) > 0:
-                            year = int(match[0])
+                            # If year range, take the last year for composition century.
+                            year = int(match[len(match)-1])
                             for i in range(10, 21):
                                 if i * 100 < year <= (i + 1) * 100:
-                                    return '%sth century' % (i)
+                                    return ('%sth century' % (i + 1)) if (i !=  20) else ('%sst century' % (i + 1))
     return None
 
 
