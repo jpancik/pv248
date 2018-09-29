@@ -68,7 +68,7 @@ def parse_block(block):
             range = None
             name = content
 
-            match = re.match(r'^([^-]+--[^,\n]+)(?:(?:(,|;) )(.*))?', content)
+            match = re.match(r'^([^-]+--[^,;\n]+)(?:(?:(?:,|;) )(.*))?', content)
             if match:
                 range = match.group(1)
                 name = match.group(2)

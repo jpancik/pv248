@@ -90,7 +90,9 @@ class Voice:
         self.range = range
 
     def format(self, index):
-        if self.range:
+        if self.range and self.name:
             print('Voice %d: %s, %s' % (index, self.range, self.name))
-        else:
+        elif self.name:
             print('Voice %d: %s' % (index, self.name))
+        elif self.range:
+            print('Voice %d: %s' % (index, self.range))
