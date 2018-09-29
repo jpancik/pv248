@@ -1,6 +1,5 @@
 import re
-from print import Print
-from person import Person
+from scorelib import Print, Person, Voice
 
 def load(filename):
     # Read input into blocks to parse. (Block is separated by empty lines.)
@@ -26,7 +25,6 @@ def parse_block(block):
     out = None
     for line in block:
         header, content = parse_line(line)
-        # print(header, content)
 
         if header == 'Print Number':
             out = Print(content)
@@ -48,8 +46,42 @@ def parse_block(block):
         if header == 'Key':
             out.composition().key = content
 
+        if header == 'Composition Year':
+            if re.match(r'^\d+$', content):
+                out.composition().year = content
+
         if header == 'Edition':
             out.edition.name = content
+
+        if header == 'Editor':
+            if '(' in content:
+                out.edition.authors.append(Person(content, None, None))
+            else:
+                names_regex = re.compile(r'(?:((?:\w)+(?:,)?(?: *)?(?:\w)*)(?:, *)?)')
+                names = names_regex.findall(content)
+                for name in names:
+                    out.edition.authors.append(Person(name, None, None))
+
+        if header.startswith('Voice'):
+            range = None
+            name = content
+
+            match = re.match(r'^([^-]+--[^,\n]+)(?:(?:, )(.*))?', content)
+            if match:
+                range = match.group(1)
+                name = match.group(2)
+
+            out.composition().voices.append(Voice(name, range))
+
+        if header == 'Partiture':
+            if content == 'yes':
+                out.partiture = True
+            else:
+                out.partiture = False
+
+        if header == 'Incipit':
+            out.composition().incipit = content
+
 
     return out
 
