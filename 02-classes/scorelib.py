@@ -5,7 +5,7 @@ class Print:
         self.partiture = None
 
     def format(self):
-        print('Print number: %s' % self.print_id)
+        print('Print Number: %s' % self.print_id)
         self.edition.format()
 
         if not self.partiture:
@@ -30,10 +30,10 @@ class Edition:
         self.composition.format_beginning()
         if self.name:
             print('Edition: %s' % self.name)
-        self.composition.format_end()
         if self.authors:
             print("Editor: %s"
                   % (", ".join([author.get_formatted() for author in self.authors])))
+        self.composition.format_end()
 
 class Composition:
     def __init__(self):

@@ -1,6 +1,7 @@
 import re
 from scorelib import Print, Person, Voice
 
+
 def load(filename):
     # Read input into blocks to parse. (Block is separated by empty lines.)
     current_block = []
@@ -49,8 +50,9 @@ def parse_block(block):
             out.composition().key = content
 
         if header == 'Composition Year':
-            if re.match(r'^\d+$', content):
-                out.composition().year = content
+            year_match = re.match(r'^(?:.*)(\d{4})(?:.*)$', content)
+            if year_match:
+                out.composition().year = year_match.group(1)
 
         if header == 'Edition':
             out.edition.name = content
@@ -59,7 +61,7 @@ def parse_block(block):
             if '(' in content:
                 out.edition.authors.append(Person(content, None, None))
             else:
-                names_regex = re.compile(r'(?:((?:\w)+(?:,)?(?: *)?(?:\w)*)(?:, *)?)')
+                names_regex = re.compile(r'(?:((?:\w|\.|\-|\:)+(?:,)?(?: *)?(?:[^,\n])*)(?:, *)?)')
                 names = names_regex.findall(content)
                 for name in names:
                     out.edition.authors.append(Person(name, None, None))
@@ -76,7 +78,7 @@ def parse_block(block):
             out.composition().voices.append(Voice(name, range))
 
         if header == 'Partiture':
-            if content == 'yes':
+            if content.startswith('yes'):
                 out.partiture = True
             else:
                 out.partiture = False
@@ -101,7 +103,11 @@ def get_composers(content):
         return []
 
     out = []
-    name_regex = re.compile(r'^([^(]+)(?:\((\d*)(/\d)?--?(\d*)(/\d)?\))?$')
+
+    if content == 'Platti, Giovanni Benedetto (+1763)':
+        out.append(Person('Platti, Giovanni Benedetto', None, 1763))
+
+    name_regex = re.compile(r'^([^(]+(?:\((?:\w| |\.)+\))?)(?:\((\d*)(/\d)?--?(\d*)(/\d)?\))?$')
     splitted = content.split(";")
     for name in splitted:
         stripped = name.strip()
