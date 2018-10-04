@@ -1,5 +1,5 @@
 import sys
-from utilities import load
+from scorelib import load
 
 
 def main():
