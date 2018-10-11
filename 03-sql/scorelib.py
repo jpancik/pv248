@@ -1,5 +1,6 @@
 import re
 
+
 class Print:
     def __init__(self, print_id):
         self.print_id = print_id
@@ -36,6 +37,7 @@ class Edition:
             print("Editor: %s"
                   % (", ".join([author.get_formatted() for author in self.authors])))
         self.composition.format_end()
+
 
 class Composition:
     def __init__(self):
@@ -87,17 +89,18 @@ class Person:
 
 
 class Voice:
-    def __init__(self, name, range):
+    def __init__(self, number, name, range):
+        self.number = number
         self.name = name
         self.range = range
 
-    def format(self, index):
+    def format(self):
         if self.range and self.name:
-            print('Voice %d: %s, %s' % (index, self.range, self.name))
+            print('Voice %d: %s, %s' % (self.number, self.range, self.name))
         elif self.name:
-            print('Voice %d: %s' % (index, self.name))
+            print('Voice %d: %s' % (self.number, self.name))
         elif self.range:
-            print('Voice %d: %s' % (index, self.range))
+            print('Voice %d: %s' % (self.number, self.range))
 
 
 def load(filename):
@@ -168,12 +171,14 @@ def parse_block(block):
             range = None
             name = content
 
+            voice_number = re.match(r'^Voice (\d+)', header).group(1)
+
             match = re.match(r'^([^-]+--[^,;\n]+)(?:(?:(?:,|;) )(.*))?', content)
             if match:
                 range = match.group(1)
                 name = match.group(2)
 
-            out.composition().voices.append(Voice(name, range))
+            out.composition().voices.append(Voice(voice_number, name, range))
 
         if header == 'Partiture':
             if content.startswith('yes'):
@@ -183,7 +188,6 @@ def parse_block(block):
 
         if header == 'Incipit':
             out.composition().incipit = content
-
 
     return out
 
