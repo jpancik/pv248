@@ -38,6 +38,17 @@ class Edition:
                   % (", ".join([author.get_formatted() for author in self.authors])))
         self.composition.format_end()
 
+    def __eq__(self, other):
+        other_authors = sorted(other.authors, key=lambda k: (k.name, k.born, k.died))
+        self_authors = sorted(self.authors, key=lambda k: (k.name, k.born, k.died))
+        if not other_authors == self_authors:
+            return False
+
+        return (self.composition, self.name) == (other.composition, other.name)
+
+    def __hash__(self) -> int:
+        return hash((self.composition, frozenset(self.authors), self.name))
+
 
 class Composition:
     def __init__(self):
@@ -70,6 +81,26 @@ class Composition:
         for index, voice in zip(range(len(self.voices)), self.voices):
             voice.format(index + 1)
 
+    def __eq__(self, other):
+        other_voices = sorted(other.voices, key=lambda k: (k.number, k.name, k.range))
+        self_voices = sorted(self.voices, key=lambda k: (k.number, k.name, k.range))
+        if not other_voices == self_voices:
+            return False
+
+        other_authors = sorted(other.authors, key=lambda k: (k.name, k.born, k.died))
+        self_authors = sorted(self.authors, key=lambda k: (k.name, k.born, k.died))
+        if not other_authors == self_authors:
+            return False
+
+        return (self.name, self.incipit, self.key, self.genre, self.year) \
+            == (other.name, other.incipit, other.key, other.genre, other.year)
+
+    def __hash__(self) -> int:
+        return hash((
+            self.name, self.incipit, self.key, self.genre, self.year,
+            frozenset(self.voices),
+            frozenset(self.authors)))
+
 
 class Person:
     def __init__(self, name, born, died):
@@ -87,6 +118,12 @@ class Person:
         else:
             return "%s" % self.name
 
+    def __eq__(self, other):
+        return (self.name, self.born, self.died) == (other.name, other.born, other.died)
+
+    def __hash__(self):
+        return hash((self.name, self.born, self.died))
+
 
 class Voice:
     def __init__(self, number, name, range):
@@ -101,6 +138,12 @@ class Voice:
             print('Voice %d: %s' % (self.number, self.name))
         elif self.range:
             print('Voice %d: %s' % (self.number, self.range))
+
+    def __eq__(self, other):
+        return (self.number, self.name, self.range) == (other.number, other.name, other.range)
+
+    def __hash__(self):
+        return hash((self.number, self.name, self.range))
 
 
 def load(filename):
