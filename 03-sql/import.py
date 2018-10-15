@@ -105,19 +105,15 @@ def main():
         print('You have to specify an output filename as a second argument.')
         return
 
-    db_file = Path("scorelib.dat")
-    db_exists = db_file.is_file()
-
     db_connection = sqlite3.connect(output_filename)
     db_cursor = db_connection.cursor()
 
     sql_filename = 'scorelib.sql'
     with open(sql_filename, 'r') as sql_schema_file:
-        if not db_exists:
-            sql_script = sql_schema_file.read()
+        sql_script = sql_schema_file.read()
 
-            db_cursor.executescript(sql_script)
-            db_connection.commit()
+        db_cursor.executescript(sql_script)
+        db_connection.commit()
 
     persisted_people = dict()
     persisted_scores = dict()
