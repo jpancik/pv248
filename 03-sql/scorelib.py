@@ -79,7 +79,7 @@ class Composition:
 
     def format_end(self):
         for index, voice in zip(range(len(self.voices)), self.voices):
-            voice.format(index + 1)
+            voice.format()
 
     def __eq__(self, other):
         other_voices = sorted(other.voices, key=lambda k: (k.number, k.name, k.range))

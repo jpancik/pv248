@@ -80,11 +80,16 @@ def persist_edition(db_cursor, persisted_people, persisted_scores, persisted_edi
                 (edition_id, author_id))
 
 
-def persist_print(db_cursor, persisted_editions, print):
-    edition_id = persisted_editions[print.edition]
+def persist_print(db_cursor, persisted_editions, p):
+    edition_id = persisted_editions[p.edition]
+
+    partiture = 'N'
+    if p.partiture:
+        partiture = 'Y'
+
     db_cursor.execute(
         "INSERT INTO print ('id', 'partiture', 'edition') VALUES (?, ?, ?)",
-        (print.print_id, ('Y' if print.partiture else 'N'), edition_id))
+        (p.print_id, partiture, edition_id))
 
 
 def main():
