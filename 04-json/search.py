@@ -29,7 +29,8 @@ def main():
         edition_id = print_row[2]
         edition_row = db_cursor.execute("SELECT * FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
         score_id = edition_row[1]
-        print_object['Edition'] = edition_row[2]
+        if edition_row[2]:
+            print_object['Edition'] = edition_row[2]
 
         editors = []
         for name, born, died in db_cursor.execute(
@@ -49,11 +50,16 @@ def main():
             print_object['Editor'] = editors
 
         score_row = db_cursor.execute("SELECT * FROM score WHERE score.id = ?", (score_id,)).fetchone()
-        print_object['Title'] = score_row[1]
-        print_object['Genre'] = score_row[2]
-        print_object['Key'] = score_row[3]
-        print_object['Incipit'] = score_row[4]
-        print_object['Publication Year'] = score_row[5]
+        if score_row[1]:
+            print_object['Title'] = score_row[1]
+        if score_row[2]:
+            print_object['Genre'] = score_row[2]
+        if score_row[3]:
+            print_object['Key'] = score_row[3]
+        if score_row[4]:
+            print_object['Incipit'] = score_row[4]
+        if score_row[5]:
+            print_object['Publication Year'] = score_row[5]
 
         composers = []
         for name, born, died in db_cursor.execute(
