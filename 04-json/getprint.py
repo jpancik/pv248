@@ -14,11 +14,9 @@ def main():
     db_cursor = db_connection.cursor()
 
     composers = []
-    print_row = db_cursor.execute("SELECT * FROM print WHERE print.id = ?", (print_id,)).fetchone()
-    edition_id = print_row[2]
+    edition_id, = db_cursor.execute("SELECT edition FROM print WHERE print.id = ?", (print_id,)).fetchone()
 
-    edition_row = db_cursor.execute("SELECT * FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
-    score_id = edition_row[1]
+    score_id, = db_cursor.execute("SELECT score FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
 
     for name, born, died in db_cursor.execute(
             "SELECT name, born, died FROM score_author sa JOIN person p ON p.id = sa.composer WHERE sa.score = ?",

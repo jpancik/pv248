@@ -21,13 +21,13 @@ def main():
             " JOIN print p ON  p.edition = e.id"
             " WHERE person.name LIKE ?", ('%{like_name}%'.format(like_name=composer_name_like),)).fetchall():
 
-        print_row = db_cursor.execute("SELECT * FROM print WHERE print.id = ?", (print_id,)).fetchone()
+        print_row = db_cursor.execute("SELECT id, partiture, edition FROM print WHERE print.id = ?", (print_id,)).fetchone()
         print_object = dict()
         print_object['Print Number'] = print_row[0]
         print_object['Partiture'] = True if (print_row[1] == 'Y') else False
 
         edition_id = print_row[2]
-        edition_row = db_cursor.execute("SELECT * FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
+        edition_row = db_cursor.execute("SELECT id, score, name, year FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
         score_id = edition_row[1]
         if edition_row[2]:
             print_object['Edition'] = edition_row[2]
@@ -49,7 +49,7 @@ def main():
         if editors:
             print_object['Editor'] = editors
 
-        score_row = db_cursor.execute("SELECT * FROM score WHERE score.id = ?", (score_id,)).fetchone()
+        score_row = db_cursor.execute("SELECT id, name, genre, key, incipit, year FROM score WHERE score.id = ?", (score_id,)).fetchone()
         if score_row[1]:
             print_object['Title'] = score_row[1]
         if score_row[2]:
@@ -59,7 +59,7 @@ def main():
         if score_row[4]:
             print_object['Incipit'] = score_row[4]
         if score_row[5]:
-            print_object['Publication Year'] = score_row[5]
+            print_object['Composition Year'] = score_row[5]
 
         composers = []
         for name, born, died in db_cursor.execute(
