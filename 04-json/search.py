@@ -91,6 +91,7 @@ def main():
             out[composer_name] = [print_object]
 
     print(json.dumps(out, indent=4, ensure_ascii=False))
+    db_connection.close()
 
 if __name__ == '__main__':
     main()

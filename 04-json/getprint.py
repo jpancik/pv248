@@ -35,6 +35,7 @@ def main():
         composers.append(to_append)
 
     print(json.dumps(composers, indent=4, ensure_ascii=False))
+    db_connection.close()
 
 
 if __name__ == '__main__':
