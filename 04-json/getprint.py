@@ -14,23 +14,25 @@ def main():
     db_cursor = db_connection.cursor()
 
     composers = []
-    edition_id, = db_cursor.execute("SELECT edition FROM print WHERE print.id = ?", (print_id,)).fetchone()
+    print_row = db_cursor.execute("SELECT edition FROM print WHERE print.id = ?", (print_id,)).fetchone()
+    if print_row:
+        edition_id = print_row[0]
 
-    score_id, = db_cursor.execute("SELECT score FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
+        score_id, = db_cursor.execute("SELECT score FROM edition WHERE edition.id = ?", (edition_id,)).fetchone()
 
-    for name, born, died in db_cursor.execute(
-            "SELECT name, born, died FROM score_author sa JOIN person p ON p.id = sa.composer WHERE sa.score = ?",
-            (score_id,)).fetchall():
-        to_append = dict()
+        for name, born, died in db_cursor.execute(
+                "SELECT name, born, died FROM score_author sa JOIN person p ON p.id = sa.composer WHERE sa.score = ?",
+                (score_id,)).fetchall():
+            to_append = dict()
 
-        if name:
-            to_append['name'] = name
-        if born:
-            to_append['born'] = born
-        if died:
-            to_append['died'] = died
+            if name:
+                to_append['name'] = name
+            if born:
+                to_append['born'] = born
+            if died:
+                to_append['died'] = died
 
-        composers.append(to_append)
+            composers.append(to_append)
 
     print(json.dumps(composers, indent=4, ensure_ascii=False))
     db_connection.close()
