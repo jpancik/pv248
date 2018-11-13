@@ -1,4 +1,3 @@
-import re
 import sys
 import numpy
 import wave
@@ -29,10 +28,13 @@ def main():
         if len(frames) == channels * framerate * sample_width:
             decoded = struct.unpack(format, frames)
 
-            fft_input = []
-            for i in range(0, len(decoded), 2):
-                chunk = decoded[i:i + 2]
-                fft_input.append((chunk[0] + chunk[1])/2.0)
+            if channels == 2:
+                fft_input = []
+                for i in range(0, len(decoded), 2):
+                    chunk = decoded[i:i + 2]
+                    fft_input.append((chunk[0] + chunk[1])/2.0)
+            else:
+                fft_input = decoded
 
             rfft_result = numpy.fft.rfft(fft_input)
             average_amplitude = sum([numpy.abs(bucket) for bucket in rfft_result])/len(rfft_result)
