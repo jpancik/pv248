@@ -113,11 +113,16 @@ def main():
                 highest_amplitude = sorted(cluster, key=lambda k: -k[1])
                 cluster_peaks.append(highest_amplitude[0])
 
-            output = []
+            output_raw = []
             for index, peak in enumerate(sorted(cluster_peaks, key=lambda k: -k[1])):
                 if index > 2:
                     break
+                output_raw.append(peak)
+
+            output = []
+            for peak in sorted(output_raw, key=lambda k: k[0]):
                 output.append(get_tone(base_freq, peak[0]))
+                
             outputs.append((start, end, output))
             start += 0.1
             end += 0.1
