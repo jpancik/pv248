@@ -132,7 +132,7 @@ def main():
             current_end = output[1]
             current_peaks = output[2]
 
-        if current_peaks != output[2]:
+        if sorted(current_peaks) != sorted(output[2]):
             print('%.1f-%.1f %s' % (current_start, current_end, " ".join(current_peaks)))
             current_start = output[0]
             current_end = output[1]
