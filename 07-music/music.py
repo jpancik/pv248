@@ -30,7 +30,7 @@ def get_tone(base, freq):
         octaves_diff += 1
 
     if octaves_diff < 0:
-        return '{}{:+d}'.format(note_names[tones_diff] + (',' * (-1 * octaves_diff)), cents)
+        return '{}{:+d}'.format(note_names[tones_diff] + (',' * (-1 * octaves_diff - 1)), cents)
     else:
         return '{}{:+d}'.format(note_names[tones_diff].lower() + ("'" * octaves_diff), cents)
 
@@ -122,7 +122,7 @@ def main():
             output = []
             for peak in sorted(output_raw, key=lambda k: k[0]):
                 output.append(get_tone(base_freq, peak[0]))
-                
+
             outputs.append((start, end, output))
             start += 0.1
             end += 0.1
