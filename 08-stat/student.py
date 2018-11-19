@@ -49,7 +49,7 @@ def main():
                 input_data[key] = value/count[key]
             input_data['student'] = 'average'
 
-            print(input_data)
+            #print(input_data)
         else:
             for row in reader:
                 if row['student'] != input_id:
