@@ -9,7 +9,7 @@ from urllib import request
 from OpenSSL.SSL import TLSv1_2_METHOD, Context, Connection
 
 
-def prepare_output(status_code, headers=None, content=None, certificate_is_valid=None, certificate_common_name=None):
+def prepare_output(status_code, headers=None, content=None, certificate_is_valid=None, certificate_common_names=None):
     output = dict()
     output['code'] = status_code
 
@@ -26,10 +26,22 @@ def prepare_output(status_code, headers=None, content=None, certificate_is_valid
 
     if certificate_is_valid is not None:
         output['certificate valid'] = certificate_is_valid
-    if certificate_common_name:
-        output['certificate for'] = [certificate_common_name]
+    if certificate_common_names:
+        output['certificate for'] = certificate_common_names
 
     return output
+
+
+def get_certificate_san(x509cert):
+    san = ''
+    ext_count = x509cert.get_extension_count()
+    for i in range(0, ext_count):
+        ext = x509cert.get_extension(i)
+        if 'subjectAltName' in str(ext.get_short_name()):
+            san = ext.__str__()
+    san = san.split(', ')
+    san = [x[4:] for x in san]
+    return san
 
 
 def main():
@@ -63,7 +75,7 @@ def main():
                                           method='GET')
 
             # TU ZACINA GRCKA SORRY.
-            certificate_common_name = None
+            certificate_common_names = None
             certificate_is_valid = None
             if get_url.startswith('https://'):
                 client = None
@@ -76,9 +88,7 @@ def main():
                     client_ssl.set_tlsext_host_name(parse.urlparse(get_url).netloc.encode('UTF-8'))
                     client_ssl.do_handshake()
                     # print('Server subject is', dict(client_ssl.get_peer_certificate().get_subject().get_components()))
-                    certificate_common_name = dict(client_ssl.get_peer_certificate().get_subject().get_components())[
-                        'CN'.encode('UTF-8')]
-                    certificate_common_name = certificate_common_name.decode('UTF-8')
+                    certificate_common_names = get_certificate_san(client_ssl.get_peer_certificate())
                 except:
                     pass
                 finally:
@@ -100,7 +110,7 @@ def main():
 
                 with request.urlopen(new_request, timeout=1, context=ctx) as response:
                     res_content = response.read().decode('UTF-8')
-                    output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_name)
+                    output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                     self.send_result(200, output)
             except socket.timeout:
@@ -139,7 +149,7 @@ def main():
                 # cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_raw)
                 # print(dict(cert.get_subject().get_components()))
 
-                certificate_common_name = None
+                certificate_common_names = None
                 certificate_is_valid = None
                 if request_url.startswith('https://'):
                     client = None
@@ -152,8 +162,7 @@ def main():
                         client_ssl.set_tlsext_host_name(parse.urlparse(request_url).netloc.encode('UTF-8'))
                         client_ssl.do_handshake()
                         # print('Server subject is', dict(client_ssl.get_peer_certificate().get_subject().get_components()))
-                        certificate_common_name = dict(client_ssl.get_peer_certificate().get_subject().get_components())['CN'.encode('UTF-8')]
-                        certificate_common_name = certificate_common_name.decode('UTF-8')
+                        certificate_common_names = get_certificate_san(client_ssl.get_peer_certificate())
                     except:
                         pass
                     finally:
@@ -174,7 +183,7 @@ def main():
 
                     with request.urlopen(new_request, timeout=request_timeout, context=ctx) as response:
                         res_content = response.read().decode('UTF-8')
-                        output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_name)
+                        output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                         self.send_result(200, output)
                 except socket.timeout:
