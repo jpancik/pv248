@@ -40,7 +40,7 @@ def get_certificate_san(x509cert):
         if 'subjectAltName' in str(ext.get_short_name()):
             san = ext.__str__()
     san = san.split(', ')
-    san = [x[4:] for x in san]
+    san = [x[4:] if x.startswith('DNS:') else x for x in san]
     return san
 
 
