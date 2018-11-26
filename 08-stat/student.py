@@ -115,8 +115,8 @@ def main():
 
         }
         if regression_slope != 0:
-            output['date 16'] = date.fromordinal(math.ceil((16.0 / regression_slope) + start_date)).__str__()
-            output['date 20'] = date.fromordinal(math.ceil((20.0 / regression_slope) + start_date)).__str__()
+            output['date 16'] = date.fromordinal(math.floor((16.0 / regression_slope) + start_date)).__str__()
+            output['date 20'] = date.fromordinal(math.floor((20.0 / regression_slope) + start_date)).__str__()
 
         print(json.dumps(output, indent=4))
 
