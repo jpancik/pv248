@@ -1,12 +1,15 @@
 import json
 import socket
+import ssl
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import parse
 from urllib import request
 
+from OpenSSL.SSL import TLSv1_2_METHOD, Context, Connection
 
-def prepare_output(status_code, headers=None, content=None):
+
+def prepare_output(status_code, headers=None, content=None, certificate_is_valid=None, certificate_common_name=None):
     output = dict()
     output['code'] = status_code
 
@@ -20,6 +23,11 @@ def prepare_output(status_code, headers=None, content=None):
             output['json'] = json.loads(content)
         except ValueError:
             output['content'] = content
+
+    if certificate_is_valid is not None:
+        output['certificate valid'] = certificate_is_valid
+    if certificate_common_name:
+        output['certificate for'] = [certificate_common_name]
 
     return output
 
@@ -53,10 +61,46 @@ def main():
                                           data=None,
                                           headers=new_headers,
                                           method='GET')
+
+            # TU ZACINA GRCKA SORRY.
+            certificate_common_name = None
+            certificate_is_valid = None
+            if get_url.startswith('https://'):
+                client = None
+                try:
+                    client = socket.socket()
+                    # print('Connecting...')
+                    client.connect((parse.urlparse(get_url).netloc, 443))
+                    client_ssl = Connection(Context(TLSv1_2_METHOD), client)
+                    client_ssl.set_connect_state()
+                    client_ssl.set_tlsext_host_name(parse.urlparse(get_url).netloc.encode('UTF-8'))
+                    client_ssl.do_handshake()
+                    # print('Server subject is', dict(client_ssl.get_peer_certificate().get_subject().get_components()))
+                    certificate_common_name = dict(client_ssl.get_peer_certificate().get_subject().get_components())[
+                        'CN'.encode('UTF-8')]
+                    certificate_common_name = certificate_common_name.decode('UTF-8')
+                except:
+                    pass
+                finally:
+                    if client:
+                        client.close()
+
+
+                try:
+                    with request.urlopen(new_request, timeout=1) as response:
+                        certificate_is_valid = True
+                except:
+                    certificate_is_valid = False
+            # TU KONCI GRCKA.
+
             try:
-                with request.urlopen(new_request, timeout=1) as response:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+
+                with request.urlopen(new_request, timeout=1, context=ctx) as response:
                     res_content = response.read().decode('UTF-8')
-                    output = prepare_output(200, response.getheaders(), res_content)
+                    output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_name)
 
                     self.send_result(200, output)
             except socket.timeout:
@@ -89,15 +133,56 @@ def main():
                                               data=bytes(request_content, 'UTF-8') if request_content else None,
                                               headers=request_headers,
                                               method=request_type)
+
+                # TU ZACINA GRCKA SORRY.
+                # cert_raw = ssl.get_server_certificate(('google.com', 443))
+                # cert = crypto.load_certificate(crypto.FILETYPE_PEM, cert_raw)
+                # print(dict(cert.get_subject().get_components()))
+
+                certificate_common_name = None
+                certificate_is_valid = None
+                if request_url.startswith('https://'):
+                    client = None
+                    try:
+                        client = socket.socket()
+                        # print('Connecting...')
+                        client.connect((parse.urlparse(request_url).netloc, 443))
+                        client_ssl = Connection(Context(TLSv1_2_METHOD), client)
+                        client_ssl.set_connect_state()
+                        client_ssl.set_tlsext_host_name(parse.urlparse(request_url).netloc.encode('UTF-8'))
+                        client_ssl.do_handshake()
+                        # print('Server subject is', dict(client_ssl.get_peer_certificate().get_subject().get_components()))
+                        certificate_common_name = dict(client_ssl.get_peer_certificate().get_subject().get_components())['CN'.encode('UTF-8')]
+                        certificate_common_name = certificate_common_name.decode('UTF-8')
+                    except:
+                        pass
+                    finally:
+                        if client:
+                            client.close()
+
+                    try:
+                        with request.urlopen(new_request, timeout=request_timeout) as response:
+                            certificate_is_valid = True
+                    except:
+                        certificate_is_valid = False
+                # TU KONCI GRCKA.
+
                 try:
-                    with request.urlopen(new_request, timeout=request_timeout) as response:
+                    ctx = ssl.create_default_context()
+                    ctx.check_hostname = False
+                    ctx.verify_mode = ssl.CERT_NONE
+
+                    with request.urlopen(new_request, timeout=request_timeout, context=ctx) as response:
                         res_content = response.read().decode('UTF-8')
-                        output = prepare_output(200, response.getheaders(), res_content)
+                        output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_name)
 
                         self.send_result(200, output)
                 except socket.timeout:
                     return self.send_result(200, prepare_output('timeout', None, None))
+
             except ValueError:
+                # import traceback
+                # traceback.print_exc()
                 self.send_result(200, prepare_output('invalid_json'))
 
         def send_result(self, status_code, content):
