@@ -128,7 +128,7 @@ def main():
                     request_type = json_body['type']
 
                 if 'url' not in json_body or (request_type == 'POST' and 'content' not in json_body):
-                    self.send_result(200, prepare_output('invalid_json'))
+                    self.send_result(200, prepare_output('invalid json'))
 
                 request_url = json_body['url']
                 request_headers = json_body['headers'] if 'headers' in json_body else dict()
@@ -192,7 +192,7 @@ def main():
             except ValueError:
                 # import traceback
                 # traceback.print_exc()
-                self.send_result(200, prepare_output('invalid_json'))
+                self.send_result(200, prepare_output('invalid json'))
 
         def send_result(self, status_code, content):
             data = json.dumps(content, indent=4)
