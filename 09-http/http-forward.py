@@ -5,6 +5,7 @@ import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib import parse
 from urllib import request
+from urllib.error import HTTPError
 
 from OpenSSL.SSL import TLSv1_2_METHOD, Context, Connection
 
@@ -112,9 +113,11 @@ def main():
 
                 with request.urlopen(new_request, timeout=1, context=ctx) as response:
                     res_content = response.read().decode('UTF-8')
-                    output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
+                    output = prepare_output(response.status, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                     self.send_result(200, output)
+            except HTTPError as err:
+                self.send_result(200, prepare_output(err.code, None, None))
             except:
                 return self.send_result(200, prepare_output('timeout', None, None))
 
@@ -185,9 +188,11 @@ def main():
 
                     with request.urlopen(new_request, timeout=request_timeout, context=ctx) as response:
                         res_content = response.read().decode('UTF-8')
-                        output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
+                        output = prepare_output(response.status, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                         self.send_result(200, output)
+                except HTTPError as err:
+                    self.send_result(200, prepare_output(err.code, None, None))
                 except:
                     return self.send_result(200, prepare_output('timeout', None, None))
 
