@@ -113,7 +113,7 @@ def main():
                     output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                     self.send_result(200, output)
-            except socket.timeout:
+            except:
                 return self.send_result(200, prepare_output('timeout', None, None))
 
         def do_POST(self):
@@ -186,7 +186,7 @@ def main():
                         output = prepare_output(200, response.getheaders(), res_content, certificate_is_valid, certificate_common_names)
 
                         self.send_result(200, output)
-                except socket.timeout:
+                except:
                     return self.send_result(200, prepare_output('timeout', None, None))
 
             except ValueError:
