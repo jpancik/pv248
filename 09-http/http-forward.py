@@ -53,6 +53,8 @@ def main():
 
     if len(sys.argv) >= 3:
         input_target_url = sys.argv[2]
+        if not input_target_url.startswith('http://') and not input_target_url.startswith('https://'):
+            input_target_url = 'http://%s' % input_target_url
     else:
         print('You have to specify target URL as a second argument.')
         return
