@@ -35,10 +35,12 @@ def main():
 
         def do_task(self):
             param_path = urlparse(self.path).path[1:]
-            file_path = os.path.join(input_folder, param_path)
+            input_folder_fix = os.path.relpath(os.path.abspath(input_folder), os.getcwd())
+            file_path = os.path.join(input_folder_fix, param_path)
+
             if os.path.isfile(file_path):
                 if file_path.endswith('.cgi'):
-                    input_folder_without_slash = input_folder[:-1] if input_folder.endswith('/') else input_folder
+                    input_folder_without_slash = input_folder_fix[:-1] if input_folder_fix.endswith('/') else input_folder_fix
                     self.cgi_info = input_folder_without_slash, param_path
                     self.run_cgi()
                 else:
