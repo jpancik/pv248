@@ -30,6 +30,9 @@ def main():
         def do_POST(self):
             self.do_task()
 
+        def do_HEAD(self):
+            self.do_task()
+
         def do_task(self):
             param_path = urlparse(self.path).path[1:]
             file_path = os.path.join(input_folder, param_path)
