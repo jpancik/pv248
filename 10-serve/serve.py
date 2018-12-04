@@ -10,6 +10,10 @@ class Server(socketserver.ThreadingMixIn, http.server.HTTPServer):
     pass
 
 
+def translate_path_eh(k):
+    return k
+
+
 def main():
     if len(sys.argv) >= 2:
         input_port = int(sys.argv[1])
@@ -44,6 +48,7 @@ def main():
             if os.path.isfile(file_path):
                 if file_path.endswith('.cgi'):
                     input_folder_without_slash = input_folder_fix[:-1] if input_folder_fix.endswith('/') else input_folder_fix
+                    self.translate_path = translate_path_eh
                     self.cgi_info = input_folder_without_slash, '%s?%s' % (param_path, query) if query else param_path
                     self.run_cgi()
                 else:
