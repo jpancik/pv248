@@ -57,8 +57,6 @@ class GamesManager(object):
         return self.is_game(game_id) and self.games[game_id]['next_player'] == player_id
 
     def is_finished(self, game_id):
-
-
         board = self.games[game_id]['board']
 
         is_draw = True
@@ -188,7 +186,7 @@ def main():
                         })
                         return
 
-                    if player_id is not 1 and player_id is not 2:
+                    if player_id != 1 and player_id != 2:
                         self.send_result(200, {
                             'status': 'bad',
                             'message': 'Player id has to be either 1 or 2.'
